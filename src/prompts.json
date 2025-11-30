@@ -1,0 +1,20 @@
+{
+  "task1": [
+    {
+      "prompt": "The chart below shows the percentage of households with Internet access between 1998 and 2018. Summarise the information by selecting and reporting the main features.",
+      "image": "/images/task1-chart.png"
+    },
+    {
+      "prompt": "The table below gives information about the population in four countries in 2003 and projected population in 2025.",
+      "image": "/images/task1-table.png"
+    }
+  ],
+  "task2": [
+    {
+      "prompt": "Some people believe that parents should teach their children how to be good members of society. Others believe that school is the best place to learn this. Discuss both views and give your opinion."
+    },
+    {
+      "prompt": "Nowadays more and more people prefer to eat ready-made food instead of freshly cooked meals. Is this a positive or negative development?"
+    }
+  ]
+}

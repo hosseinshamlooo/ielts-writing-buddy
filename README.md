@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🌸 IELTS Writing Buddy
 
-## Getting Started
+### _Your cozy AI-powered practice space for IELTS Writing Tasks_ ✨
 
-First, run the development server:
+Welcome to **IELTS Writing Buddy** — a warm, beginner-friendly platform that helps students practice IELTS Writing Task 1 and Task 2 with **AI-generated feedback**, beautifully displayed prompts, and a calm, distraction-free interface.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+This project is designed to feel simple, friendly, and supportive — like a small study corner on the internet. 🌿✏️
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 💖 What This Project Does
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+✨ **1. Shows IELTS Writing Prompts**
 
-## Learn More
+- Task 1 prompts can include charts, tables, or maps (with images!)
+- Task 2 prompts are classic opinion/discussion essay questions
+- A default prompt appears automatically
+- A **“New Prompt”** button gives students random practice
 
-To learn more about Next.js, take a look at the following resources:
+✨ **2. Lets You Write an Essay**  
+Students type their essay directly on the platform.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+✨ **3. Sends the Essay to AI for Feedback**  
+The AI analyzes:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Task response
+- Coherence & cohesion
+- Vocabulary
+- Grammar accuracy
 
-## Deploy on Vercel
+Then it generates:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Individual band scores
+- An overall score
+- Friendly, actionable feedback
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+✨ **4. Displays Everything Cleanly on a Feedback Page**  
+A nice little report card 🎓
+
+---
+
+## 🧁 Why This Project Exists
+
+Students who study alone often struggle with:
+
+- finding practice prompts
+- knowing whether their writing is good
+- understanding _why_ their score isn’t improving
+
+This project gives them:
+
+- unlimited prompts
+- instant AI feedback
+- a place to practice privately
+- a cozy, low-pressure environment
+
+It’s like having a study buddy who never gets tired 💛
+
+---
+
+## 🛠️ Tech Stack (Cute Edition)
+
+| Tech                           | What It Brings                      |
+| ------------------------------ | ----------------------------------- |
+| 🌐 **Next.js 16 (App Router)** | Modern, fast, full-stack magic      |
+| 💙 **React + TypeScript**      | Safety + great developer experience |
+| 🎨 **TailwindCSS**             | Pretty UI with minimal stress       |
+| 🤖 **OpenAI GPT API**          | Smart feedback that feels human     |
+| 🖼️ **next/image**              | Smooth and optimized task images    |
+| 📦 **JSON Prompt Library**     | Easy way to manage all prompts      |
+
+---
+
+## 📁 Project Structure (Simple + Clear)
