@@ -18,36 +18,32 @@ const prompts = promptsData as PromptsJSON;
 
 export default function TaskSelector() {
   const taskOptions = Object.keys(prompts);
-
-  // Default task and default prompt (computed synchronously)
   const [task, setTask] = useState<string>("task1");
   const [currentPrompt, setCurrentPrompt] = useState<Prompt>(
     prompts["task1"][0]
   );
 
-  // Random generator
   const generateRandomPrompt = () => {
     const list = prompts[task];
     const randomIndex = Math.floor(Math.random() * list.length);
     setCurrentPrompt(list[randomIndex]);
   };
 
-  // When task changes → update to first prompt
   const handleTaskChange = (value: string) => {
     setTask(value);
-    setCurrentPrompt(prompts[value][0]); // synchronous safe
+    setCurrentPrompt(prompts[value][0]);
   };
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-4 mx-auto max-w-lg w-full">
       {/* Selector */}
-      <div className="flex gap-4 items-center">
+      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
         <label className="font-medium">Select Task:</label>
 
         <select
           value={task}
           onChange={(e) => handleTaskChange(e.target.value)}
-          className="border p-2 rounded"
+          className="border p-2 rounded w-full sm:w-auto"
         >
           {taskOptions.map((key) => (
             <option key={key} value={key}>
@@ -65,13 +61,12 @@ export default function TaskSelector() {
       </div>
 
       {/* Prompt Card */}
-      <div className="border rounded p-4 shadow bg-white">
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg mx-auto">
         <h3 className="text-lg font-semibold mb-2">Practice Prompt</h3>
-
         <p className="mb-4 whitespace-pre-wrap">{currentPrompt.prompt}</p>
 
         {currentPrompt.image && (
-          <div className="w-full max-w-md">
+          <div className="w-full max-w-md mx-auto">
             <Image
               src={currentPrompt.image}
               alt="Task illustration"
