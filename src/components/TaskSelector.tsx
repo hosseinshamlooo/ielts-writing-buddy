@@ -35,15 +35,15 @@ export default function TaskSelector() {
   };
 
   return (
-    <div className="flex flex-col gap-4 mx-auto max-w-lg w-full">
+    <div className="flex flex-col min-h-[40rem]">
       {/* Selector */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center">
         <label className="font-medium">Select Task:</label>
 
         <select
           value={task}
           onChange={(e) => handleTaskChange(e.target.value)}
-          className="border p-2 rounded w-full sm:w-auto"
+          className="border rounded sm:w-auto"
         >
           {taskOptions.map((key) => (
             <option key={key} value={key}>
@@ -61,7 +61,7 @@ export default function TaskSelector() {
       </div>
 
       {/* Prompt Card */}
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg mx-auto">
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
         <h3 className="text-lg font-semibold mb-2">Practice Prompt</h3>
         <p className="mb-4 whitespace-pre-wrap">{currentPrompt.prompt}</p>
 

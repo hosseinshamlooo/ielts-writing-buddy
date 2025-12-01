@@ -18,13 +18,13 @@ export default function EssayForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white dark:bg-gray-800 rounded-lg flex flex-col items-center shadow mt-10 gap-10"
+      className="bg-white dark:bg-gray-800 rounded-lg flex flex-col items-center shadow min-h-[40rem]"
     >
       <textarea
         value={essay}
         onChange={(e) => setEssay(e.target.value)}
         placeholder="Paste your IELTS essay here..."
-        className="border rounded p-3 w-full max-w-[84rem] resize-none h-[20rem] mt-10"
+        className="border rounded-lg w-[85%] resize-none h-[34rem]"
         required
       />
       {/* Word Counter */}
