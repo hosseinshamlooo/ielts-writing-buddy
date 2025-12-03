@@ -2,22 +2,29 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
 
 /* Tailwind base import */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 /* Root variables for light theme */
 :root {
   --color-background: #ffffff;
   --color-foreground: #171717;
-  --color-primary: #3b82f6;
-  /* Tailwind blue-500 */
-  --color-secondary: #f97316;
-  /* Tailwind orange-500 */
+  /* black text */
+  --color-primary: #171717;
+  /* black */
+  --color-secondary: #404040;
+  /* dark gray */
   --color-card: #f9fafb;
   --color-border: #e5e7eb;
   --color-accent: #f3f4f6;
   --color-accent-foreground: #171717;
+  /* black text */
+  --color-selected-bg: #404040;
+  /* dark gray for selected buttons */
+  --color-selected-text: #ffffff;
+  /* white text on selected */
+  --color-unselected-bg: transparent;
+  --color-unselected-text: #171717;
+  /* black text */
   --font-sans: 'Outfit', sans-serif;
   --transition-speed: 0.3s;
 }
@@ -25,15 +32,24 @@
 /* Dark mode overrides */
 .dark {
   --color-background: #0a0a0a;
-  --color-foreground: #ededed;
-  --color-primary: #60a5fa;
-  /* lighter blue */
-  --color-secondary: #fb923c;
-  /* lighter orange */
+  --color-foreground: #f5f5f5;
+  /* off-white text */
+  --color-primary: #f5f5f5;
+  /* off-white */
+  --color-secondary: #6b6b6b;
+  /* medium gray */
   --color-card: #1f1f1f;
   --color-border: #374151;
   --color-accent: #374151;
-  --color-accent-foreground: #ededed;
+  --color-accent-foreground: #f5f5f5;
+  /* off-white text */
+  --color-selected-bg: #f5f5f5;
+  /* off-white for selected buttons */
+  --color-selected-text: #171717;
+  /* black text on selected */
+  --color-unselected-bg: transparent;
+  --color-unselected-text: #f5f5f5;
+  /* off-white text */
 }
 
 /* Smooth transitions for theme changes */
@@ -48,11 +64,12 @@ body {
   background-color: var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-sans);
+  overflow-x: hidden;
 }
 
 /* Links */
 a {
-  color: var(--color-primary);
+  color: var(--color-foreground);
   text-decoration: none;
   transition: color var(--transition-speed) ease;
 }
@@ -63,12 +80,13 @@ a:hover {
 
 /* Buttons */
 button {
-  background-color: var(--color-primary);
-  color: var(--color-background);
+  background-color: transparent;
+  color: var(--color-foreground);
 }
 
 button:hover {
-  background-color: var(--color-secondary);
+  background-color: var(--color-accent);
+  color: var(--color-accent-foreground);
 }
 
 /* Input and textarea styling */
@@ -85,5 +103,5 @@ input:focus,
 textarea:focus,
 select:focus {
   outline: none;
-  border-color: var(--color-primary);
+  border-color: var(--color-foreground);
 }

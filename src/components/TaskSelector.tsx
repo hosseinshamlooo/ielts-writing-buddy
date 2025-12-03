@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import promptsData from "../prompts.json";
 import { useTask } from "@/src/contexts/TaskContext";
+import { RefreshCw } from "lucide-react";
 
 // Types
 type Prompt = {
@@ -22,38 +23,65 @@ export default function TaskSelector() {
   const [currentPrompt, setCurrentPrompt] = useState<Prompt>(
     prompts[task]?.[0] || prompts["task1"][0]
   );
+  const [isRotating, setIsRotating] = useState(false);
 
   // Update prompt when task changes
   useEffect(() => {
-    if (prompts[task] && prompts[task].length > 0) {
-      setCurrentPrompt(prompts[task][0]);
-    }
+    const timer = setTimeout(() => {
+      if (prompts[task] && prompts[task].length > 0) {
+        setCurrentPrompt(prompts[task][0]);
+      }
+    }, 0);
+    return () => clearTimeout(timer);
   }, [task]);
 
-  const generateRandomPrompt = () => {
-    const list = prompts[task];
-    const randomIndex = Math.floor(Math.random() * list.length);
-    setCurrentPrompt(list[randomIndex]);
+  // Function to get a new random prompt
+  const getNewPrompt = () => {
+    if (prompts[task] && prompts[task].length > 0) {
+      // Start rotation animation
+      setIsRotating(true);
+
+      const availablePrompts = prompts[task];
+      // Get a random prompt that's different from the current one
+      let newPrompt;
+      do {
+        const randomIndex = Math.floor(Math.random() * availablePrompts.length);
+        newPrompt = availablePrompts[randomIndex];
+      } while (
+        availablePrompts.length > 1 &&
+        newPrompt.prompt === currentPrompt.prompt
+      );
+      setCurrentPrompt(newPrompt);
+
+      // Stop rotation animation after 500ms
+      setTimeout(() => {
+        setIsRotating(false);
+      }, 100);
+    }
   };
 
   return (
     <div className="flex flex-col min-h-[40rem]">
       {/* Selector */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center mb-4">
-        <button
-          onClick={generateRandomPrompt}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
-          New Prompt
-        </button>
-      </div>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center mb-4"></div>
 
       {/* Prompt Card */}
-      <div
-        className="bg-white dark:bg-gray-800 border border-gray-400 dark:border-gray-600 rounded-lg"
-        style={{ borderRadius: "0.8rem" }}
-      >
-        <h3 className="text-lg font-semibold mb-2">Practice Prompt</h3>
+      <div className="rounded-lg" style={{ borderRadius: "0.8rem" }}>
+        <div className="flex items-center justify-center gap-3 mb-6">
+          <h3 className="text-lg font-semibold">Practice Prompt</h3>
+          <button
+            onClick={getNewPrompt}
+            className="flex items-center gap-3 px-3 py-3 rounded-full text-base bg-[var(--color-selected-bg)] text-[var(--color-selected-text)] hover:opacity-90 transition-all border-0 outline-none font-sans"
+            style={{ fontFamily: "var(--font-sans), 'Outfit', sans-serif" }}
+            title="Get a new prompt"
+          >
+            <RefreshCw
+              className={`size-5 ${
+                isRotating ? "animate-[spin_0.3s_linear_infinite]" : ""
+              }`}
+            />
+          </button>
+        </div>
         {currentPrompt.image && (
           <div className="w-full max-w-md mx-auto">
             <Image
@@ -61,12 +89,12 @@ export default function TaskSelector() {
               alt="Task illustration"
               width={600}
               height={400}
-              className="rounded border"
+              className="rounded-xl"
             />
           </div>
         )}
 
-        <p className="mb-4 text-center whitespace-pre-wrap">
+        <p className="mt-8 text-center whitespace-pre-wrap">
           {currentPrompt.prompt}
         </p>
       </div>
