@@ -154,7 +154,7 @@ export default function EssayForm({
             value={essay}
             onChange={(e) => setEssay(e.target.value)}
             placeholder="Paste your IELTS essay here..."
-            className="border rounded-lg w-[95%] resize-none h-[37rem] p-4"
+            className="border rounded-lg w-[95%] resize-none h-[37rem] p-4 hide-scrollbar"
             required
           />
           {/* Word Counter and Button Row */}

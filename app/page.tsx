@@ -73,6 +73,7 @@ export default function Page() {
                 </button>
                 <FeedbackCard
                   highlights={highlights}
+                  focusedHighlightId={focusedHighlightId}
                   onSuggestionClick={(highlightId) => {
                     // Toggle: if clicking the same highlight, clear focus
                     setFocusedHighlightId(

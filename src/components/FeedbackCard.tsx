@@ -38,11 +38,13 @@ interface FeedbackData {
 interface FeedbackCardProps {
   highlights?: Highlight[];
   onSuggestionClick?: (highlightId: string | null) => void;
+  focusedHighlightId?: string | null;
 }
 
 export default function FeedbackCard({
   highlights = [],
   onSuggestionClick,
+  focusedHighlightId,
 }: FeedbackCardProps) {
   const [data, setData] = useState<FeedbackData>({
     taskResponse: 7.0,
@@ -101,6 +103,7 @@ export default function FeedbackCard({
   });
 
   const [selectedBox, setSelectedBox] = useState<string | null>(null);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
 
   // Generate suggestions from highlights
   const suggestionsFromHighlights = useMemo(() => {
@@ -225,6 +228,26 @@ export default function FeedbackCard({
     });
   }, [suggestionsFromHighlights]);
 
+  // Hide webkit scrollbar for suggestions section
+  useEffect(() => {
+    if (suggestionsRef.current) {
+      const styleId = "suggestions-scrollbar-hide";
+      if (!document.getElementById(styleId)) {
+        const style = document.createElement("style");
+        style.id = styleId;
+        style.textContent = `
+          .suggestions-scroll::-webkit-scrollbar {
+            display: none;
+          }
+        `;
+        document.head.appendChild(style);
+      }
+      if (suggestionsRef.current) {
+        suggestionsRef.current.classList.add("suggestions-scroll");
+      }
+    }
+  }, [selectedBox]);
+
   const handleBoxClick = (box: string) => {
     setSelectedBox(selectedBox === box ? null : box);
   };
@@ -237,25 +260,25 @@ export default function FeedbackCard({
   };
 
   return (
-    <div className="flex flex-col min-h-[40rem] space-y-6">
+    <div className="flex flex-col h-[40rem]">
       {/* Overall Score Box - Full width of grid */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4 mb-6">
         <div
           className="bg-[var(--color-card)] border-2 border-[var(--color-border)] rounded-lg flex flex-col items-center justify-center p-6 col-span-2"
-          style={{ height: "120px" }}
+          style={{ height: "130px" }}
         >
           <div
-            className="text-4xl font-bold mb-2"
+            className="text-5xl font-bold mb-2"
             style={{ color: "var(--color-foreground)" }}
           >
             {data.overallScore}
           </div>
-          <h3 className="text-base font-semibold mb-1">Overall Score</h3>
+          <h3 className="text-lg font-semibold mb-1">Overall Score</h3>
         </div>
       </div>
 
-      {/* 2x2 Grid for other boxes */}
-      <div className="grid grid-cols-2 gap-4">
+      {/* Scores Grid */}
+      <div className="grid grid-cols-4 gap-4 mb-6">
         {/* Task Response Box */}
         <div
           className={`bg-[var(--color-card)] border-2 rounded-lg overflow-hidden cursor-pointer transition-all ${
@@ -264,10 +287,11 @@ export default function FeedbackCard({
               : "border-[var(--color-border)]"
           }`}
           onClick={() => handleBoxClick("taskResponse")}
+          style={{ height: "140px" }}
         >
-          <div className="p-3 flex flex-col items-center justify-center h-[100px]">
+          <div className="p-3 flex flex-col items-center justify-center h-full">
             <div
-              className={`text-2xl font-bold mb-1 ${getScoreColor(
+              className={`text-3xl font-bold mb-1 ${getScoreColor(
                 data.taskResponse
               )}`}
             >
@@ -285,10 +309,11 @@ export default function FeedbackCard({
               : "border-[var(--color-border)]"
           }`}
           onClick={() => handleBoxClick("coherenceCohesion")}
+          style={{ height: "140px" }}
         >
-          <div className="p-3 flex flex-col items-center justify-center h-[100px]">
+          <div className="p-3 flex flex-col items-center justify-center h-full">
             <div
-              className={`text-2xl font-bold mb-1 ${getScoreColor(
+              className={`text-3xl font-bold mb-1 ${getScoreColor(
                 data.coherenceCohesion
               )}`}
             >
@@ -308,10 +333,11 @@ export default function FeedbackCard({
               : "border-[var(--color-border)]"
           }`}
           onClick={() => handleBoxClick("lexicalResource")}
+          style={{ height: "140px" }}
         >
-          <div className="p-3 flex flex-col items-center justify-center h-[100px]">
+          <div className="p-3 flex flex-col items-center justify-center h-full">
             <div
-              className={`text-2xl font-bold mb-1 ${getScoreColor(
+              className={`text-3xl font-bold mb-1 ${getScoreColor(
                 data.lexicalResource
               )}`}
             >
@@ -331,23 +357,32 @@ export default function FeedbackCard({
               : "border-[var(--color-border)]"
           }`}
           onClick={() => handleBoxClick("grammar")}
+          style={{ height: "140px" }}
         >
-          <div className="p-3 flex flex-col items-center justify-center h-[100px]">
+          <div className="p-3 flex flex-col items-center justify-center h-full">
             <div
-              className={`text-2xl font-bold mb-1 ${getScoreColor(
+              className={`text-3xl font-bold mb-1 ${getScoreColor(
                 data.grammar
               )}`}
             >
               {data.grammar}
             </div>
-            <h3 className="text-sm font-semibold text-center">Grammar</h3>
+            <h3 className="text-sm font-semibold text-center">Grammar Range</h3>
           </div>
         </div>
       </div>
 
       {/* Suggestions Dropdown - Shows when a box is selected */}
       {selectedBox && selectedBox !== "overall" && (
-        <div className="bg-[var(--color-card)] border-2 border-[var(--color-border)] rounded-lg p-6 space-y-6">
+        <div
+          ref={suggestionsRef}
+          className="bg-[var(--color-card)] border-2 border-[var(--color-border)] rounded-lg p-4 space-y-4 overflow-y-auto flex-1 min-h-0"
+          style={{
+            maxHeight: "250px",
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+          }}
+        >
           {/* Strengths Section */}
           {data.suggestions[selectedBox as keyof typeof data.suggestions]
             .strengths.length > 0 && (
@@ -359,36 +394,65 @@ export default function FeedbackCard({
               <ul className="space-y-2">
                 {data.suggestions[
                   selectedBox as keyof typeof data.suggestions
-                ].strengths.map((strength, index) => (
-                  <li
-                    key={index}
-                    className={`flex items-start gap-2 ${
-                      strength.highlightId
-                        ? "cursor-pointer hover:bg-green-50 dark:hover:bg-green-900/20 rounded-md p-2 -m-2 transition-all duration-200 group"
-                        : ""
-                    }`}
-                    onClick={() => {
-                      if (strength.highlightId && onSuggestionClick) {
-                        // Toggle: if clicking the same highlight, clear focus
-                        onSuggestionClick(strength.highlightId);
-                      }
-                    }}
-                  >
-                    <div className="w-2 h-2 rounded-full bg-green-500 mt-2 flex-shrink-0 group-hover:scale-125 transition-transform"></div>
-                    <p
-                      className={`text-[var(--color-foreground)] ${
-                        strength.highlightId ? "group-hover:font-medium" : ""
+                ].strengths.map((strength, index) => {
+                  const isActive = strength.highlightId === focusedHighlightId;
+                  return (
+                    <li
+                      key={index}
+                      className={`flex items-start gap-2 ${
+                        strength.highlightId
+                          ? `cursor-pointer rounded-md p-2 -m-2 transition-all duration-200 group ${
+                              isActive
+                                ? "bg-emerald-100 dark:bg-emerald-900/30 border-2 border-emerald-400 dark:border-emerald-500"
+                                : "hover:bg-green-50 dark:hover:bg-green-900/20"
+                            }`
+                          : ""
                       }`}
+                      onClick={() => {
+                        if (strength.highlightId && onSuggestionClick) {
+                          // Toggle: if clicking the same highlight, clear focus
+                          onSuggestionClick(
+                            focusedHighlightId === strength.highlightId
+                              ? null
+                              : strength.highlightId
+                          );
+                        }
+                      }}
                     >
-                      {strength.text}
-                      {strength.highlightId && (
-                        <span className="ml-2 text-xs text-green-600 dark:text-green-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                          (Click to highlight)
-                        </span>
-                      )}
-                    </p>
-                  </li>
-                ))}
+                      <div
+                        className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 transition-transform ${
+                          isActive
+                            ? "bg-emerald-500 scale-125"
+                            : "bg-green-500 group-hover:scale-125"
+                        }`}
+                      ></div>
+                      <p
+                        className={`text-[var(--color-foreground)] ${
+                          strength.highlightId
+                            ? isActive
+                              ? "font-semibold text-emerald-700 dark:text-emerald-300"
+                              : "group-hover:font-medium"
+                            : ""
+                        }`}
+                      >
+                        {strength.text}
+                        {strength.highlightId && (
+                          <span
+                            className={`ml-2 text-xs transition-opacity ${
+                              isActive
+                                ? "text-emerald-600 dark:text-emerald-400 opacity-100"
+                                : "text-green-600 dark:text-green-400 opacity-0 group-hover:opacity-100"
+                            }`}
+                          >
+                            {isActive
+                              ? "(Highlighted)"
+                              : "(Click to highlight)"}
+                          </span>
+                        )}
+                      </p>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           )}
@@ -404,36 +468,66 @@ export default function FeedbackCard({
               <ul className="space-y-2">
                 {data.suggestions[
                   selectedBox as keyof typeof data.suggestions
-                ].improvements.map((improvement, index) => (
-                  <li
-                    key={index}
-                    className={`flex items-start gap-2 ${
-                      improvement.highlightId
-                        ? "cursor-pointer hover:bg-pink-50 dark:hover:bg-pink-900/20 rounded-md p-2 -m-2 transition-all duration-200 group"
-                        : ""
-                    }`}
-                    onClick={() => {
-                      if (improvement.highlightId && onSuggestionClick) {
-                        // Toggle: if clicking the same highlight, clear focus
-                        onSuggestionClick(improvement.highlightId);
-                      }
-                    }}
-                  >
-                    <div className="w-2 h-2 rounded-full bg-pink-500 mt-2 flex-shrink-0 group-hover:scale-125 transition-transform"></div>
-                    <p
-                      className={`text-[var(--color-foreground)] ${
-                        improvement.highlightId ? "group-hover:font-medium" : ""
+                ].improvements.map((improvement, index) => {
+                  const isActive =
+                    improvement.highlightId === focusedHighlightId;
+                  return (
+                    <li
+                      key={index}
+                      className={`flex items-start gap-2 ${
+                        improvement.highlightId
+                          ? `cursor-pointer rounded-md p-2 -m-2 transition-all duration-200 group ${
+                              isActive
+                                ? "bg-orange-100 dark:bg-orange-900/30 border-2 border-orange-400 dark:border-orange-500"
+                                : "hover:bg-pink-50 dark:hover:bg-pink-900/20"
+                            }`
+                          : ""
                       }`}
+                      onClick={() => {
+                        if (improvement.highlightId && onSuggestionClick) {
+                          // Toggle: if clicking the same highlight, clear focus
+                          onSuggestionClick(
+                            focusedHighlightId === improvement.highlightId
+                              ? null
+                              : improvement.highlightId
+                          );
+                        }
+                      }}
                     >
-                      {improvement.text}
-                      {improvement.highlightId && (
-                        <span className="ml-2 text-xs text-pink-500 dark:text-pink-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                          (Click to highlight)
-                        </span>
-                      )}
-                    </p>
-                  </li>
-                ))}
+                      <div
+                        className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 transition-transform ${
+                          isActive
+                            ? "bg-orange-500 scale-125"
+                            : "bg-pink-500 group-hover:scale-125"
+                        }`}
+                      ></div>
+                      <p
+                        className={`text-[var(--color-foreground)] ${
+                          improvement.highlightId
+                            ? isActive
+                              ? "font-semibold text-orange-700 dark:text-orange-300"
+                              : "group-hover:font-medium"
+                            : ""
+                        }`}
+                      >
+                        {improvement.text}
+                        {improvement.highlightId && (
+                          <span
+                            className={`ml-2 text-xs transition-opacity ${
+                              isActive
+                                ? "text-orange-600 dark:text-orange-400 opacity-100"
+                                : "text-pink-500 dark:text-pink-400 opacity-0 group-hover:opacity-100"
+                            }`}
+                          >
+                            {isActive
+                              ? "(Highlighted)"
+                              : "(Click to highlight)"}
+                          </span>
+                        )}
+                      </p>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           )}
