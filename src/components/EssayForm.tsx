@@ -15,6 +15,7 @@ interface EssayFormProps {
   highlights?: Highlight[];
   setHighlights?: (highlights: Highlight[]) => void;
   focusedHighlightId?: string | null;
+  isLoading?: boolean;
 }
 
 // Pre-defined highlights for the sample essay
@@ -76,6 +77,7 @@ export default function EssayForm({
   highlights: parentHighlights,
   setHighlights,
   focusedHighlightId,
+  isLoading = false,
 }: EssayFormProps) {
   const [essay, setEssay] = useState("");
   const [isInitialMount, setIsInitialMount] = useState(true);
@@ -164,9 +166,10 @@ export default function EssayForm({
             </p>
             <button
               type="submit"
-              className="px-6 py-2 rounded-full transition-all hover:bg-[var(--color-accent)]"
+              disabled={isLoading}
+              className="px-6 py-2 rounded-full transition-all hover:bg-[var(--color-accent)] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Get Feedback
+              {isLoading ? "Generating Feedback..." : "Get Feedback"}
             </button>
           </div>
         </>

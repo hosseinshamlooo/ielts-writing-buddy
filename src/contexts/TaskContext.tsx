@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 
 type TaskContextType = {
   task: string;
@@ -10,20 +16,24 @@ type TaskContextType = {
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
 
 export function TaskProvider({ children }: { children: ReactNode }) {
-  const [task, setTaskState] = useState<string>("task1");
-
-  // Load task from localStorage on mount
-  useEffect(() => {
-    const savedTask = localStorage.getItem("selectedTask");
-    if (savedTask) {
-      setTaskState(savedTask);
+  // Initialize state with localStorage value to avoid cascading renders
+  const [task, setTaskState] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("selectedTask") || "task1";
     }
-  }, []);
+    return "task1";
+  });
+
+  // Sync localStorage when task changes (but not on initial mount)
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("selectedTask", task);
+    }
+  }, [task]);
 
   // Save task to localStorage when it changes
   const setTask = (newTask: string) => {
     setTaskState(newTask);
-    localStorage.setItem("selectedTask", newTask);
   };
 
   return (
@@ -40,4 +50,3 @@ export function useTask() {
   }
   return context;
 }
-

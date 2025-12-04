@@ -20,19 +20,59 @@ const prompts = promptsData as PromptsJSON;
 
 export default function TaskSelector() {
   const { task } = useTask();
-  const [currentPrompt, setCurrentPrompt] = useState<Prompt>(
-    prompts[task]?.[0] || prompts["task1"][0]
-  );
+
+  // Initialize state with lazy initialization to avoid cascading renders
+  const [currentPrompt, setCurrentPrompt] = useState<Prompt>(() => {
+    if (typeof window !== "undefined") {
+      const savedPrompt = localStorage.getItem("currentPrompt");
+      const currentTask = localStorage.getItem("selectedTask") || "task1";
+      if (savedPrompt && prompts[currentTask]) {
+        // Check if saved prompt exists in current task prompts
+        const promptExists = prompts[currentTask].some(
+          (p) => p.prompt === savedPrompt
+        );
+        if (promptExists) {
+          return { prompt: savedPrompt };
+        }
+      }
+      // Use default prompt for current task
+      return prompts[currentTask]?.[0] || prompts["task1"][0];
+    }
+    return prompts["task1"][0];
+  });
+
   const [isRotating, setIsRotating] = useState(false);
+
+  // Save prompt to localStorage when it changes
+  useEffect(() => {
+    if (typeof window !== "undefined" && currentPrompt.prompt) {
+      localStorage.setItem("currentPrompt", currentPrompt.prompt);
+    }
+  }, [currentPrompt]);
 
   // Update prompt when task changes
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (prompts[task] && prompts[task].length > 0) {
-        setCurrentPrompt(prompts[task][0]);
-      }
-    }, 0);
-    return () => clearTimeout(timer);
+    if (prompts[task] && prompts[task].length > 0) {
+      // Use setTimeout to defer state update and avoid cascading renders
+      const timer = setTimeout(() => {
+        const savedPrompt = localStorage.getItem("currentPrompt");
+        // Check if saved prompt exists in new task prompts
+        if (savedPrompt) {
+          const promptExists = prompts[task].some(
+            (p) => p.prompt === savedPrompt
+          );
+          if (promptExists) {
+            setCurrentPrompt({ prompt: savedPrompt });
+            return;
+          }
+        }
+        // Use first prompt of new task
+        const newPrompt = prompts[task][0];
+        setCurrentPrompt(newPrompt);
+      }, 0);
+
+      return () => clearTimeout(timer);
+    }
   }, [task]);
 
   // Function to get a new random prompt
@@ -52,6 +92,8 @@ export default function TaskSelector() {
         newPrompt.prompt === currentPrompt.prompt
       );
       setCurrentPrompt(newPrompt);
+      // Save prompt to localStorage
+      localStorage.setItem("currentPrompt", newPrompt.prompt);
 
       // Stop rotation animation after 500ms
       setTimeout(() => {

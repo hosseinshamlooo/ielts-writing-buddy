@@ -186,11 +186,13 @@ export default function FeedbackCard({
 
   useEffect(() => {
     const savedEssay = localStorage.getItem("essay") || "";
+    const savedFeedback =
+      localStorage.getItem("feedback") ||
+      "Task Response: 7.0\nCoherence & Cohesion: 6.5\nLexical Resource: 7.0\nGrammar: 6.0\n\nOverall Score: 6.5\n\nFeedback: Your essay presents clear ideas but needs stronger logical linking. Vocabulary is appropriate but could be more precise. Grammar errors occur occasionally.";
 
     payloadRef.current = {
       essay: savedEssay,
-      feedback:
-        "Task Response: 7.0\nCoherence & Cohesion: 6.5\nLexical Resource: 7.0\nGrammar: 6.0\n\nOverall Score: 6.5\n\nFeedback: Your essay presents clear ideas but needs stronger logical linking. Vocabulary is appropriate but could be more precise. Grammar errors occur occasionally.",
+      feedback: savedFeedback,
     };
 
     // Set state on next microtask, prevents synchronous render cascade

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import EssayForm from "@/src/components/EssayForm";
 import TaskSelector from "@/src/components/TaskSelector";
 import FeedbackCard from "@/src/components/FeedbackCard";
+import { useTask } from "@/src/contexts/TaskContext";
 
 export interface Highlight {
   text: string;
@@ -18,22 +19,81 @@ export default function Page() {
   const [focusedHighlightId, setFocusedHighlightId] = useState<string | null>(
     null
   );
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { task } = useTask();
 
   useEffect(() => {
     // Check if feedback should be shown (when essay is submitted)
     const essay = localStorage.getItem("essay");
     const hasFeedback = localStorage.getItem("hasFeedback") === "true";
+    const savedHighlights = localStorage.getItem("highlights");
     if (essay && hasFeedback) {
       // Use setTimeout to avoid synchronous state update in effect
       setTimeout(() => {
         setShowFeedback(true);
+        if (savedHighlights) {
+          try {
+            setHighlights(JSON.parse(savedHighlights));
+          } catch (e) {
+            console.error("Error parsing saved highlights:", e);
+          }
+        }
       }, 0);
     }
   }, []);
 
-  const handleGetFeedback = () => {
-    localStorage.setItem("hasFeedback", "true");
-    setShowFeedback(true);
+  const handleGetFeedback = async () => {
+    const essay = localStorage.getItem("essay");
+    if (!essay || essay.trim().length === 0) {
+      setError("Please write an essay first");
+      return;
+    }
+
+    // Get the current prompt from localStorage
+    const currentPrompt = localStorage.getItem("currentPrompt") || "";
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/feedback", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          essay: essay,
+          taskType: task === "task1" ? "Task 1" : "Task 2",
+          prompt: currentPrompt,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to get feedback");
+      }
+
+      const data = await response.json();
+
+      // Save feedback and highlights to localStorage
+      localStorage.setItem("feedback", data.feedback);
+      localStorage.setItem("highlights", JSON.stringify(data.highlights || []));
+      localStorage.setItem("hasFeedback", "true");
+
+      // Update state
+      setHighlights(data.highlights || []);
+      setShowFeedback(true);
+    } catch (err: unknown) {
+      console.error("Error getting feedback:", err);
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Failed to get feedback. Please try again.";
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleBackToPrompt = () => {
@@ -54,12 +114,18 @@ export default function Page() {
 
         <div className="flex flex-row gap-4">
           <div className="w-[48%]">
+            {error && (
+              <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-500 rounded-lg text-red-700 dark:text-red-300 text-sm">
+                {error}
+              </div>
+            )}
             <EssayForm
               onGetFeedback={handleGetFeedback}
               showFeedback={showFeedback}
               highlights={highlights}
               setHighlights={setHighlights}
               focusedHighlightId={focusedHighlightId}
+              isLoading={isLoading}
             />
           </div>
           <div className="w-[48%]">
