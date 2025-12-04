@@ -474,14 +474,10 @@ export default function FeedbackCard({
                   return (
                     <li
                       key={index}
-                      className={`flex items-start gap-2 ${
-                        improvement.highlightId
-                          ? `cursor-pointer rounded-md p-2 -m-2 transition-all duration-200 group ${
-                              isActive
-                                ? "bg-orange-100 dark:bg-orange-900/30 border-2 border-orange-400 dark:border-orange-500"
-                                : "hover:bg-pink-50 dark:hover:bg-pink-900/20"
-                            }`
-                          : ""
+                      className={`flex items-start gap-2 cursor-pointer rounded-md p-2 -m-2 transition-all duration-200 group ${
+                        isActive
+                          ? "bg-orange-100 dark:bg-orange-900/30 border-2 border-orange-400 dark:border-orange-500"
+                          : "hover:bg-pink-50 dark:hover:bg-pink-900/20"
                       }`}
                       onClick={() => {
                         if (improvement.highlightId && onSuggestionClick) {
@@ -503,11 +499,9 @@ export default function FeedbackCard({
                       ></div>
                       <p
                         className={`text-[var(--color-foreground)] ${
-                          improvement.highlightId
-                            ? isActive
-                              ? "font-semibold text-orange-700 dark:text-orange-300"
-                              : "group-hover:font-medium"
-                            : ""
+                          isActive
+                            ? "font-semibold text-orange-700 dark:text-orange-300"
+                            : "group-hover:font-medium"
                         }`}
                       >
                         {improvement.text}
