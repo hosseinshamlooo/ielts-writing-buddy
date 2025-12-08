@@ -172,10 +172,10 @@ export default function HighlightedEssay({
               className={`${
                 segment.highlight === "needs-improvement"
                   ? isFocused
-                    ? "bg-orange-400 dark:bg-orange-700/80 underline decoration-4 decoration-orange-600 dark:decoration-orange-300 border-2 border-orange-600 dark:border-orange-400 font-semibold shadow-lg shadow-orange-500/50 dark:shadow-orange-400/30"
+                    ? "bg-orange-400 dark:bg-orange-700/80 underline decoration-4 decoration-orange-600 dark:decoration-orange-300 font-semibold shadow-lg shadow-orange-500/50 dark:shadow-orange-400/30"
                     : "bg-yellow-200 dark:bg-yellow-900/40 underline decoration-2 decoration-yellow-600 dark:decoration-yellow-400"
                   : isFocused
-                  ? "bg-emerald-400 dark:bg-emerald-700/80 border-2 border-emerald-600 dark:border-emerald-400 font-semibold shadow-lg shadow-emerald-500/50 dark:shadow-emerald-400/30"
+                  ? "bg-emerald-400 dark:bg-emerald-700/80 font-semibold shadow-lg shadow-emerald-500/50 dark:shadow-emerald-400/30"
                   : "bg-green-200 dark:bg-green-900/40"
               } transition-all duration-300 rounded px-0.5`}
               title={segment.reason}

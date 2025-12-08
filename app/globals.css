@@ -1,8 +1,7 @@
-/* Import Outfit font */
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
-
 /* Tailwind base import */
 @import "tailwindcss";
+
+/* Note: Outfit font is loaded via Next.js font optimization in layout.tsx */
 
 /* Root variables for light theme */
 :root {
@@ -25,7 +24,7 @@
   --color-unselected-bg: transparent;
   --color-unselected-text: #171717;
   /* black text */
-  --font-sans: 'Outfit', sans-serif;
+  --font-sans: var(--font-outfit);
   --transition-speed: 0.3s;
 }
 

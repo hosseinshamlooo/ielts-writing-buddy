@@ -23,8 +23,7 @@ export default function Header() {
       {/* Task Toggle Button */}
       <button
         onClick={() => setTask(task === "task1" ? "task2" : "task1")}
-        className="flex items-center gap-3 px-5 py-2.5 rounded-full text-base bg-[var(--color-selected-bg)] text-[var(--color-selected-text)] hover:opacity-90 transition-all border-0 outline-none font-sans"
-        style={{ fontFamily: "var(--font-sans), 'Outfit', sans-serif" }}
+        className="flex items-center gap-3 px-5 py-2.5 rounded-full text-base bg-[var(--color-selected-bg)] text-[var(--color-selected-text)] hover:opacity-90 transition-all border-0 outline-none"
       >
         <span className="whitespace-nowrap">
           Task {task === "task1" ? "1" : "2"}
@@ -35,8 +34,7 @@ export default function Header() {
       {mounted && (
         <button
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          className="flex items-center gap-3 px-5 py-2.5 rounded-full text-base bg-[var(--color-selected-bg)] text-[var(--color-selected-text)] hover:opacity-90 transition-all border-0 outline-none font-sans"
-          style={{ fontFamily: "var(--font-sans), 'Outfit', sans-serif" }}
+          className="flex items-center gap-3 px-5 py-2.5 rounded-full text-base bg-[var(--color-selected-bg)] text-[var(--color-selected-text)] hover:opacity-90 transition-all border-0 outline-none"
         >
           {theme === "dark" ? (
             <Sun className="size-5" style={{ color: "#6b6b6b" }} />

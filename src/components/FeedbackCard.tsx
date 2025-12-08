@@ -6,14 +6,19 @@ interface Highlight {
   type: "needs-improvement" | "good";
   reason?: string;
   id?: string;
+  criterion?:
+    | "taskResponse"
+    | "coherenceCohesion"
+    | "lexicalResource"
+    | "grammar";
 }
 
 interface FeedbackData {
-  taskResponse: number;
-  coherenceCohesion: number;
-  lexicalResource: number;
-  grammar: number;
-  overallScore: number;
+  taskResponse: number | null;
+  coherenceCohesion: number | null;
+  lexicalResource: number | null;
+  grammar: number | null;
+  overallScore: number | null;
   feedback: string;
   suggestions: {
     taskResponse: {
@@ -47,13 +52,12 @@ export default function FeedbackCard({
   focusedHighlightId,
 }: FeedbackCardProps) {
   const [data, setData] = useState<FeedbackData>({
-    taskResponse: 7.0,
-    coherenceCohesion: 6.5,
-    lexicalResource: 7.0,
-    grammar: 6.0,
-    overallScore: 6.5,
-    feedback:
-      "Your essay presents clear ideas but needs stronger logical linking. Vocabulary is appropriate but could be more precise. Grammar errors occur occasionally.",
+    taskResponse: null,
+    coherenceCohesion: null,
+    lexicalResource: null,
+    grammar: null,
+    overallScore: null,
+    feedback: "",
     suggestions: {
       taskResponse: {
         strengths: [
@@ -105,79 +109,89 @@ export default function FeedbackCard({
   const [selectedBox, setSelectedBox] = useState<string | null>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
-  // Generate suggestions from highlights
+  // Calculate overall score with IELTS rounding rules
+  const calculateOverallScore = (
+    taskResponse: number | null,
+    coherenceCohesion: number | null,
+    lexicalResource: number | null,
+    grammar: number | null
+  ): number | null => {
+    if (
+      taskResponse === null ||
+      coherenceCohesion === null ||
+      lexicalResource === null ||
+      grammar === null
+    ) {
+      return null;
+    }
+
+    // Calculate average
+    const average =
+      (taskResponse + coherenceCohesion + lexicalResource + grammar) / 4;
+
+    // Round to 2 decimal places to handle floating point precision
+    const roundedAverage = Math.round(average * 100) / 100;
+
+    // Get the decimal part
+    const decimalPart = roundedAverage % 1;
+    const wholePart = Math.floor(roundedAverage);
+
+    // Apply IELTS rounding rules
+    if (Math.abs(decimalPart - 0.25) < 0.01) {
+      // Round up to .5 (e.g., 6.25 → 6.5)
+      return wholePart + 0.5;
+    } else if (Math.abs(decimalPart - 0.75) < 0.01) {
+      // Round up to next whole band (e.g., 6.75 → 7.0)
+      return wholePart + 1.0;
+    } else {
+      // Round to nearest 0.5 (e.g., 6.1 → 6.0, 6.3 → 6.5, 6.6 → 6.5, 6.8 → 7.0)
+      return Math.round(roundedAverage * 2) / 2;
+    }
+  };
+
+  // Generate suggestions from highlights, categorized by criterion
   const suggestionsFromHighlights = useMemo(() => {
-    // Ensure highlights have IDs
+    // Ensure highlights have IDs and criterion
     const highlightsWithIds = highlights.map((h, idx) => ({
       ...h,
       id: h.id || `highlight-${idx}`,
+      criterion: h.criterion || "lexicalResource", // Default to lexicalResource if not specified
     }));
 
-    // Categorize highlights - most are lexical/grammar related
-    // For now, we'll put all "needs-improvement" in lexicalResource improvements
-    // and all "good" in lexicalResource strengths
-    const lexicalImprovements = highlightsWithIds
-      .filter((h) => h.type === "needs-improvement")
-      .map((h) => ({
-        text: h.reason || `Consider improving: "${h.text}"`,
-        highlightId: h.id,
-      }));
+    // Helper function to get suggestions for a criterion
+    const getSuggestionsForCriterion = (
+      criterion:
+        | "taskResponse"
+        | "coherenceCohesion"
+        | "lexicalResource"
+        | "grammar"
+    ) => {
+      const criterionHighlights = highlightsWithIds.filter(
+        (h) => h.criterion === criterion
+      );
 
-    const lexicalStrengths = highlightsWithIds
-      .filter((h) => h.type === "good")
-      .map((h) => ({
-        text: h.reason || `Good use of: "${h.text}"`,
-        highlightId: h.id,
-      }));
+      const strengths = criterionHighlights
+        .filter((h) => h.type === "good")
+        .map((h) => ({
+          text: h.reason || `Good use of: "${h.text}"`,
+          highlightId: h.id,
+        }));
+
+      const improvements = criterionHighlights
+        .filter((h) => h.type === "needs-improvement")
+        .map((h) => ({
+          text: h.reason || `Consider improving: "${h.text}"`,
+          highlightId: h.id,
+        }));
+
+      return { strengths, improvements };
+    };
 
     return {
-      taskResponse: {
-        strengths: [
-          { text: "You addressed the main parts of the task" },
-          { text: "Your position was clear throughout the essay" },
-        ],
-        improvements: [
-          { text: "Ensure you fully address all parts of the task" },
-          { text: "Develop your ideas with relevant examples" },
-          { text: "Maintain a clear position throughout your essay" },
-        ],
-      },
-      coherenceCohesion: {
-        strengths: [
-          { text: "Your essay has a logical structure" },
-          { text: "Paragraphs are generally well-organized" },
-        ],
-        improvements: [
-          { text: "Use more linking words to connect your ideas" },
-          { text: "Organize paragraphs with clear topic sentences" },
-          { text: "Improve paragraph transitions for better flow" },
-        ],
-      },
-      lexicalResource: {
-        strengths:
-          lexicalStrengths.length > 0
-            ? lexicalStrengths
-            : [{ text: "You used appropriate vocabulary for the topic" }],
-        improvements:
-          lexicalImprovements.length > 0
-            ? lexicalImprovements
-            : [
-                { text: "Use more precise vocabulary instead of common words" },
-                { text: "Avoid repetition by using synonyms" },
-                { text: "Incorporate more academic vocabulary" },
-              ],
-      },
-      grammar: {
-        strengths: [
-          { text: "Most sentences are grammatically correct" },
-          { text: "You demonstrated good control of basic structures" },
-        ],
-        improvements: [
-          { text: "Review subject-verb agreement" },
-          { text: "Pay attention to article usage (a, an, the)" },
-          { text: "Use a variety of sentence structures" },
-        ],
-      },
+      taskResponse: getSuggestionsForCriterion("taskResponse"),
+      coherenceCohesion: getSuggestionsForCriterion("coherenceCohesion"),
+      lexicalResource: getSuggestionsForCriterion("lexicalResource"),
+      grammar: getSuggestionsForCriterion("grammar"),
     };
   }, [highlights]);
 
@@ -186,9 +200,11 @@ export default function FeedbackCard({
 
   useEffect(() => {
     const savedEssay = localStorage.getItem("essay") || "";
-    const savedFeedback =
-      localStorage.getItem("feedback") ||
-      "Task Response: 7.0\nCoherence & Cohesion: 6.5\nLexical Resource: 7.0\nGrammar: 6.0\n\nOverall Score: 6.5\n\nFeedback: Your essay presents clear ideas but needs stronger logical linking. Vocabulary is appropriate but could be more precise. Grammar errors occur occasionally.";
+    const savedFeedback = localStorage.getItem("feedback") || "";
+
+    if (!savedFeedback) {
+      return; // No feedback available yet
+    }
 
     payloadRef.current = {
       essay: savedEssay,
@@ -210,19 +226,33 @@ export default function FeedbackCard({
           /Lexical Resource:\s*(\d+\.?\d*)/
         );
         const grammarMatch = feedbackText.match(/Grammar:\s*(\d+\.?\d*)/);
-        const overallMatch = feedbackText.match(/Overall Score:\s*(\d+\.?\d*)/);
         const feedbackMatch = feedbackText.match(/Feedback:\s*([\s\S]+)/);
 
+        const taskResponse = taskResponseMatch
+          ? parseFloat(taskResponseMatch[1])
+          : null;
+        const coherenceCohesion = coherenceMatch
+          ? parseFloat(coherenceMatch[1])
+          : null;
+        const lexicalResource = lexicalMatch
+          ? parseFloat(lexicalMatch[1])
+          : null;
+        const grammar = grammarMatch ? parseFloat(grammarMatch[1]) : null;
+
+        // Calculate overall score using IELTS rounding rules
+        const calculatedOverallScore = calculateOverallScore(
+          taskResponse,
+          coherenceCohesion,
+          lexicalResource,
+          grammar
+        );
+
         setData({
-          taskResponse: taskResponseMatch
-            ? parseFloat(taskResponseMatch[1])
-            : 7.0,
-          coherenceCohesion: coherenceMatch
-            ? parseFloat(coherenceMatch[1])
-            : 6.5,
-          lexicalResource: lexicalMatch ? parseFloat(lexicalMatch[1]) : 7.0,
-          grammar: grammarMatch ? parseFloat(grammarMatch[1]) : 6.0,
-          overallScore: overallMatch ? parseFloat(overallMatch[1]) : 6.5,
+          taskResponse,
+          coherenceCohesion,
+          lexicalResource,
+          grammar,
+          overallScore: calculatedOverallScore,
           feedback: feedbackMatch ? feedbackMatch[1].trim() : "",
           suggestions: suggestionsFromHighlights,
         });
@@ -254,11 +284,19 @@ export default function FeedbackCard({
     setSelectedBox(selectedBox === box ? null : box);
   };
 
-  const getScoreColor = (score: number) => {
+  const getScoreColor = (score: number | null) => {
+    if (score === null) return "";
     if (score >= 7.5) return "text-green-600 dark:text-green-400";
     if (score >= 6.5) return "text-blue-600 dark:text-blue-400";
     if (score >= 5.5) return "text-yellow-600 dark:text-yellow-400";
     return "text-red-600 dark:text-red-400";
+  };
+
+  // Format score to always show .0 when needed (e.g., 6.0 not 6)
+  const formatScore = (score: number | null): string => {
+    if (score === null) return "";
+    // Always show one decimal place
+    return score.toFixed(1);
   };
 
   return (
@@ -273,7 +311,7 @@ export default function FeedbackCard({
             className="text-5xl font-bold mb-2"
             style={{ color: "var(--color-foreground)" }}
           >
-            {data.overallScore}
+            {formatScore(data.overallScore)}
           </div>
           <h3 className="text-lg font-semibold mb-1">Overall Score</h3>
         </div>
@@ -297,9 +335,13 @@ export default function FeedbackCard({
                 data.taskResponse
               )}`}
             >
-              {data.taskResponse}
+              {formatScore(data.taskResponse)}
             </div>
-            <h3 className="text-sm font-semibold text-center">Task Response</h3>
+            <h3 className="text-sm font-semibold text-center">
+              Task
+              <br />
+              Response
+            </h3>
           </div>
         </div>
 
@@ -319,10 +361,11 @@ export default function FeedbackCard({
                 data.coherenceCohesion
               )}`}
             >
-              {data.coherenceCohesion}
+              {formatScore(data.coherenceCohesion)}
             </div>
             <h3 className="text-sm font-semibold text-center">
-              Coherence & Cohesion
+              Coherence
+              <br />& Cohesion
             </h3>
           </div>
         </div>
@@ -343,10 +386,12 @@ export default function FeedbackCard({
                 data.lexicalResource
               )}`}
             >
-              {data.lexicalResource}
+              {formatScore(data.lexicalResource)}
             </div>
             <h3 className="text-sm font-semibold text-center">
-              Lexical Resource
+              Lexical
+              <br />
+              Resource
             </h3>
           </div>
         </div>
@@ -367,9 +412,12 @@ export default function FeedbackCard({
                 data.grammar
               )}`}
             >
-              {data.grammar}
+              {formatScore(data.grammar)}
             </div>
-            <h3 className="text-sm font-semibold text-center">Grammar Range</h3>
+            <h3 className="text-sm font-semibold text-center">
+              Grammar Range
+              <br />& Accuracy
+            </h3>
           </div>
         </div>
       </div>
@@ -405,7 +453,7 @@ export default function FeedbackCard({
                         strength.highlightId
                           ? `cursor-pointer rounded-md p-2 -m-2 transition-all duration-200 group ${
                               isActive
-                                ? "bg-emerald-100 dark:bg-emerald-900/30 border-2 border-emerald-400 dark:border-emerald-500"
+                                ? "bg-emerald-100 dark:bg-emerald-900/30"
                                 : "hover:bg-green-50 dark:hover:bg-green-900/20"
                             }`
                           : ""
@@ -478,7 +526,7 @@ export default function FeedbackCard({
                       key={index}
                       className={`flex items-start gap-2 cursor-pointer rounded-md p-2 -m-2 transition-all duration-200 group ${
                         isActive
-                          ? "bg-orange-100 dark:bg-orange-900/30 border-2 border-orange-400 dark:border-orange-500"
+                          ? "bg-orange-100 dark:bg-orange-900/30"
                           : "hover:bg-pink-50 dark:hover:bg-pink-900/20"
                       }`}
                       onClick={() => {

@@ -20,35 +20,43 @@ const prompts = promptsData as PromptsJSON;
 
 export default function TaskSelector() {
   const { task } = useTask();
+  const [mounted, setMounted] = useState(false);
 
-  // Initialize state with lazy initialization to avoid cascading renders
-  const [currentPrompt, setCurrentPrompt] = useState<Prompt>(() => {
-    if (typeof window !== "undefined") {
-      const savedPrompt = localStorage.getItem("currentPrompt");
-      const currentTask = localStorage.getItem("selectedTask") || "task1";
-      if (savedPrompt && prompts[currentTask]) {
-        // Check if saved prompt exists in current task prompts
-        const promptExists = prompts[currentTask].some(
-          (p) => p.prompt === savedPrompt
-        );
-        if (promptExists) {
-          return { prompt: savedPrompt };
-        }
-      }
-      // Use default prompt for current task
-      return prompts[currentTask]?.[0] || prompts["task1"][0];
-    }
-    return prompts["task1"][0];
-  });
+  // Initialize with default to avoid hydration mismatch
+  // Always use task1 default on both server and client initially
+  const [currentPrompt, setCurrentPrompt] = useState<Prompt>(
+    prompts["task1"][0]
+  );
 
   const [isRotating, setIsRotating] = useState(false);
 
-  // Save prompt to localStorage when it changes
+  // Initialize from localStorage only after mount (client-side only)
   useEffect(() => {
-    if (typeof window !== "undefined" && currentPrompt.prompt) {
+    setMounted(true);
+    const savedPrompt = localStorage.getItem("currentPrompt");
+    const currentTask = localStorage.getItem("selectedTask") || "task1";
+    
+    if (savedPrompt && prompts[currentTask]) {
+      // Check if saved prompt exists in current task prompts
+      const promptExists = prompts[currentTask].some(
+        (p) => p.prompt === savedPrompt
+      );
+      if (promptExists) {
+        setCurrentPrompt({ prompt: savedPrompt });
+        return;
+      }
+    }
+    // Use default prompt for current task
+    const defaultPrompt = prompts[currentTask]?.[0] || prompts["task1"][0];
+    setCurrentPrompt(defaultPrompt);
+  }, []);
+
+  // Save prompt to localStorage when it changes (only after mount)
+  useEffect(() => {
+    if (mounted && currentPrompt.prompt) {
       localStorage.setItem("currentPrompt", currentPrompt.prompt);
     }
-  }, [currentPrompt]);
+  }, [currentPrompt, mounted]);
 
   // Update prompt when task changes
   useEffect(() => {
@@ -113,8 +121,7 @@ export default function TaskSelector() {
           <h3 className="text-lg font-semibold">Practice Prompt</h3>
           <button
             onClick={getNewPrompt}
-            className="flex items-center gap-3 px-3 py-3 rounded-full text-base bg-[var(--color-selected-bg)] text-[var(--color-selected-text)] hover:opacity-90 transition-all border-0 outline-none font-sans"
-            style={{ fontFamily: "var(--font-sans), 'Outfit', sans-serif" }}
+            className="flex items-center gap-3 px-3 py-3 rounded-full text-base bg-[var(--color-selected-bg)] text-[var(--color-selected-text)] hover:opacity-90 transition-all border-0 outline-none"
             title="Get a new prompt"
           >
             <RefreshCw

@@ -109,7 +109,7 @@ export default function Page() {
           className="text-4xl font-bold text-center mb-6"
           style={{ color: "var(--color-foreground)" }}
         >
-          AI IELTS Writing Feedback Generator
+          IELTS ScoreLab AI
         </h1>
 
         <div className="flex flex-row gap-4">

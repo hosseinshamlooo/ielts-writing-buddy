@@ -31,11 +31,9 @@ Coherence & Cohesion: [score 0-9]
 Lexical Resource: [score 0-9]
 Grammar: [score 0-9]
 
-Overall Score: [average score]
-
 Feedback: [2-3 sentences of general feedback]
 
-Provide scores as decimals (e.g., 6.5, 7.0). Be specific and constructive in your feedback.`;
+Provide scores as decimals (e.g., 6.5, 7.0). Do NOT include an Overall Score - it will be calculated automatically. Be specific and constructive in your feedback.`;
 
     // Include the prompt if provided for better context
     const promptContext = prompt
@@ -68,12 +66,13 @@ Provide your evaluation in the exact format specified.`;
     {
       "text": "exact phrase from essay",
       "type": "needs-improvement" or "good",
-      "reason": "brief explanation"
+      "reason": "brief explanation",
+      "criterion": "taskResponse" or "coherenceCohesion" or "lexicalResource" or "grammar"
     }
   ]
 }
 
-Only include 3-5 highlights. Focus on vocabulary, grammar, and style issues.`;
+Include 5-8 highlights distributed across all four criteria (Task Response, Coherence & Cohesion, Lexical Resource, Grammar). Each highlight should be categorized by which criterion it relates to.`;
 
     const highlightsCompletion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
@@ -95,6 +94,7 @@ Only include 3-5 highlights. Focus on vocabulary, grammar, and style issues.`;
       type: string;
       reason?: string;
       id?: string;
+      criterion?: string;
     }
 
     let highlights: Highlight[] = [];
@@ -107,11 +107,19 @@ Only include 3-5 highlights. Focus on vocabulary, grammar, and style issues.`;
       if (!Array.isArray(highlightsArray)) {
         highlights = [];
       } else {
-        // Add IDs to highlights
-        highlights = highlightsArray.map((h: Highlight, idx: number) => ({
-          ...h,
-          id: h.id || `highlight-${idx}`,
-        }));
+        // Add IDs to highlights and ensure criterion is valid
+        const validCriteria = ["taskResponse", "coherenceCohesion", "lexicalResource", "grammar"];
+        highlights = highlightsArray.map((h: Highlight, idx: number) => {
+          const criterion = h.criterion && validCriteria.includes(h.criterion) 
+            ? h.criterion 
+            : "lexicalResource"; // Default to lexicalResource if invalid
+          
+          return {
+            ...h,
+            id: h.id || `highlight-${idx}`,
+            criterion,
+          };
+        });
       }
     } catch (e) {
       console.error("Error parsing highlights:", e);
