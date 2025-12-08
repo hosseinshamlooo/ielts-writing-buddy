@@ -1,20 +1,28 @@
 {
   "task1": [
     {
-      "prompt": "The graph below gives information about the percentage of the population in four Asian countries living in cities from 1970 to 2020, with predictions for 2030 and 2040. Summarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+      "prompt": "The graph below gives information about the percentage of the population in four Asian countries living in cities from 1970 to 2020, with predictions for 2030 and 2040.",
+      "instructions": "Summarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+      "word-count": "Write at least 150 words.",
       "image": "/images/18-T11.png"
     },
     {
-      "prompt": "The chart below shows the number of households in the US by their annual income in 2007, 2011 and 2015. Summarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+      "prompt": "The chart below shows the number of households in the US by their annual income in 2007, 2011 and 2015.",
+      "instructions": "Summarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+      "word-count": "Write at least 150 words.",
       "image": "/images/18-T21.png"
     }
   ],
   "task2": [
     {
-      "prompt": "The most important aim of science should be to improve people's lives. To what extent do you agree or disagree with this statement? Give reasons for your answer and include any relevant examples from your own knowledge or experience."
+      "prompt": "The most important aim of science should be to improve people's lives. To what extent do you agree or disagree with this statement?",
+      "instructions": " Give reasons for your answer and include any relevant examples from your own knowledge or experience.",
+      "word-count": "Write at least 250 words."
     },
     {
-      "prompt": "Some university students want to learn about other subjects in addition to their main subjects. Others believe it is more important to give all their time and attention to studying for a qualification. Discuss both these views and give your own opinion."
+      "prompt": "Some university students want to learn about other subjects in addition to their main subjects. Others believe it is more important to give all their time and attention to studying for a qualification. Discuss both these views and give your own opinion.",
+      "instructions": " Discuss both these views and give your own opinion.",
+      "word-count": "Write at least 250 words."
     }
   ]
 }

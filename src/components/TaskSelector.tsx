@@ -9,6 +9,8 @@ import { RefreshCw } from "lucide-react";
 // Types
 type Prompt = {
   prompt: string;
+  instructions?: string;
+  "word-count"?: string;
   image?: string;
 };
 
@@ -143,9 +145,21 @@ export default function TaskSelector() {
           </div>
         )}
 
-        <p className="mt-8 text-center whitespace-pre-wrap">
-          {currentPrompt.prompt}
-        </p>
+        <div className="mt-8 text-center">
+          <p className="whitespace-pre-wrap">
+            {currentPrompt.prompt}
+          </p>
+          {currentPrompt.instructions && (
+            <p className="mt-4 italic whitespace-pre-wrap">
+              {currentPrompt.instructions}
+            </p>
+          )}
+          {currentPrompt["word-count"] && (
+            <p className="mt-4 font-bold whitespace-pre-wrap">
+              {currentPrompt["word-count"]}
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );
